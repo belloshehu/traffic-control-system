@@ -7,8 +7,9 @@
 #define northSensorPin 0
 #define northCLKPin 0 
 #define northDIO 0
-TrafficLane northLane(northCLKPin, northDIO);
-TM1637Display 7_segment(northRedLEDPin, northGreenLEDPin, northOrangeLEDPin, northLane, northSensorPin, 'go');
+
+TM1637Display northDisplay(northCLKPin, northDIO);
+TrafficLane northLane(northRedLEDPin, northGreenLEDPin, northOrangeLEDPin, northDisplay, northSensorPin, "go");
 
 // South lane:
 #define southRedLEDPin 0
@@ -17,8 +18,8 @@ TM1637Display 7_segment(northRedLEDPin, northGreenLEDPin, northOrangeLEDPin, nor
 #define southSensorPin 0
 #define southCLKPin 0 
 #define southDIO 0
-TrafficLane southLane(southCLKPin, southDIO);
-TM1637Display 7_segment(southRedLEDPin, southGreenLEDPin, southOrangeLEDPin, southLane, southSensorPin, "ready");
+TM1637Display southDisplay(southCLKPin, southDIO);
+TrafficLane southLane(southRedLEDPin, southGreenLEDPin, southOrangeLEDPin, southDisplay, southSensorPin, "ready");
 
 // West lane:
 #define westRedLEDPin 0
@@ -27,8 +28,8 @@ TM1637Display 7_segment(southRedLEDPin, southGreenLEDPin, southOrangeLEDPin, sou
 #define westSensorPin 0
 #define westCLKPin 0 
 #define westDIO 0
-TrafficLane westLane(westCLKPin, westDIO);
-TM1637Display 7_segment(westRedLEDPin, westGreenLEDPin, westOrangeLEDPin, westLane, westSensorPin, "stop");
+TM1637Display westDisplay(westCLKPin, westDIO);
+TrafficLane westLane(westRedLEDPin, westGreenLEDPin, westOrangeLEDPin, westDisplay, westSensorPin, "stop");
 
 // East lane:
 #define eastRedLEDPin 0
@@ -37,10 +38,11 @@ TM1637Display 7_segment(westRedLEDPin, westGreenLEDPin, westOrangeLEDPin, westLa
 #define eastSensorPin 0
 #define eastCLKPin 0 
 #define eastDIO 0
-TrafficLane eastLane(eastCLKPin, eastDIO);
-TM1637Display 7_segment(eastRedLEDPin, eastGreenLEDPin, eastOrangeLEDPin, eastLane, eastSensorPin, "stop");
+TM1637Display eastDisplay(eastCLKPin, eastDIO);
+TrafficLane eastLane(eastRedLEDPin, eastGreenLEDPin, eastOrangeLEDPin, eastDisplay, eastSensorPin, "stop");
 
-unsigned long timeDelay = 0;
+unsigned long timeDelay = 1000; // time for updating the counter
+unsigned long lastTime = 0;
 
 void setup() {
   // put your setup code here, to run once:
@@ -52,10 +54,20 @@ void setup() {
 
 void loop() {
   // put your main code here, to run repeatedly:
-  
-
+  process();
 }
 
 void process(){
-  if(northLane.){}
+  northLane.setSensorState(); // read sensor and increment if a vehicle is detected in the north lane
+  southLane.setSensorState(); // read sensor and increment if a vehicle is detected in the south lane
+  westLane.setSensorState();  // read sensor and increment if a vehicle is detected in the west lane
+  eastLane.setSensorState();  // read sensor and increment if a vehicle is detected in the east lane
+
+  if(millis() - lastTime >= timeDelay){
+    // descrement 7 segments accordingly for lane that is in "go" state
+    northLane.updateDelayCount();
+    southLane.updateDelayCount();
+    westLane.updateDelayCount();
+    eastLane.updateDelayCount();
+  }
 }

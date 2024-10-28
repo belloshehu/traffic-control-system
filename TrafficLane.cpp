@@ -14,31 +14,60 @@ TrafficLane::TrafficLane(byte redLEDPin, byte greenLEDPin, byte orangeLEDPin, TM
 void TrafficLane::configurePins(){
   pinMode(redLEDPin, OUTPUT);
   pinMode(greenLEDPin, OUTPUT);
-  pinMode(orangePin, OUTPUT);
+  pinMode(orangeLEDPin, OUTPUT);
   pinMode(sensorPin, INPUT);
   }
 
+void TrafficLane::updateDelayCount(){
+  if(this->delayCount > 0 && this->state == "go"){
+      this->delayCount -= 1;
+      this->sevenSegmentDisplay->showNumberDec(this->delayCount);
+  }
+}
+
+uint16_t TrafficLane:: getDelayCount(){
+  return this->delayCount;
+}
+
 uint16_t TrafficLane:: getVehicleCount(){
-  return this->count;
+  return this->vehicleCount;
   }
 
 uint16_t TrafficLane:: incrementVehicleCount(){
-  return this->count + 1;
+    if(this->sensorState == true){
+     this->vehicleCount+=1;
+    }
+    return this->vehicleCount;
   }
 
-bool TrafficLane:: readSensor(){
-  return digitalRead(this->pinSensor);
+bool TrafficLane:: setSensorState(){
+  if(this->sensorState == false && readSensor() == HIGH){
+    this->sensorState = true;
+    incrementVehicleCount();
+  }
+  if(readSensor() == LOW){
+    this->sensorState = false;
+  }
+  return this->sensorState;
+}
+
+bool TrafficLane:: getSensorState(){
+  return this->sensorState;
+}
+
+int TrafficLane:: readSensor(){
+  return digitalRead(this->sensorPin);
 }
 
 void TrafficLane:: resetVehicleCount(){
-  this->count = 0;
-  }
+  this->vehicleCount = 0;
+}
 
-uint16_t TrafficLane:: getState(){
+String TrafficLane:: getState(){
   return this->state;
-  }
+}
 
-uint16_t TrafficLane:: setState(String state){
+void TrafficLane:: setState(String state){
   return this->state = state;
-  }
+}
   
